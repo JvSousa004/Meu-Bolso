@@ -40,10 +40,7 @@ class Conta(models.Model):
             self.saldo -= valor
             self.save() 
 
-from django.db import models
-from django.conf import settings
-# Certifique-se de que Categoria e Conta estão importadas/definidas acima
-# from .models import Categoria, Conta # Se você colocou em arquivos separados, mas no mesmo arquivo não precisa reimportar
+
 
 class Movimentacao(models.Model):
     # Tipos de movimentação: Receita ou Despesa
