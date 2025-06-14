@@ -77,4 +77,4 @@ Este projeto está sendo desenvolvido por:
 
 ---
 
-**Nota:** Este projeto está sendo realizado para entrega do projeto final da matéria **Qualidade de Software**.
+**Nota:** Este projeto está sendo realizado para entrega do projeto final da matéria **Testes de Software**.
