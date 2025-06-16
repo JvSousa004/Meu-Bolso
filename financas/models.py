@@ -101,4 +101,74 @@ class Movimentacao(models.Model):
                 self.conta.subtrair_despesa(self.valor) # Se uma receita for deletada, subtrai o valor do saldo
             elif self.tipo == 'DESPESA':
                 self.conta.adicionar_receita(self.valor) # Se uma despesa for deletada, adiciona o valor de volta ao saldo
-        super().delete(*args, **kwargs)
+        super().delete(*args, **kwargs) 
+
+class Planejamento(models.Model):
+    # Escolhas para o tipo de agendamento (Receita ou Despesa)
+    TIPO_AGENDAMENTO_CHOICES = [
+        ('RECEITA', 'Receita'),
+        ('DESPESA', 'Despesa'),
+    ]
+
+    # Escolhas para a frequência do agendamento
+    FREQUENCIA_CHOICES = [
+        ('UNICO', 'Único'),
+        ('DIARIO', 'Diário'),
+        ('SEMANAL', 'Semanal'),
+        ('MENSAL', 'Mensal'),
+        ('ANUAL', 'Anual'),
+    ]
+
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='planejamentos')
+    tipo = models.CharField(max_length=7, choices=TIPO_AGENDAMENTO_CHOICES)
+    valor = models.DecimalField(max_digits=10, decimal_places=2)
+    data_agendada = models.DateField()
+    frequencia = models.CharField(max_length=10, choices=FREQUENCIA_CHOICES, default='UNICO')
+    categoria = models.ForeignKey(Categoria, on_delete=models.SET_NULL, null=True, blank=True, related_name='planejamentos')
+    descricao = models.TextField(blank=True, null=True)
+
+    # Status do agendamento (para controle se já foi realizado/pago, etc.)
+    STATUS_CHOICES = [
+        ('AGENDADO', 'Agendado'),
+        ('REALIZADO', 'Realizado'),
+        ('CANCELADO', 'Cancelado'),
+    ]
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='AGENDADO')
+
+    # A movimentação real que foi criada a partir deste planejamento (se houver)
+    # Isso ajuda a vincular o agendamento à transação efetiva.
+    movimentacao_gerada = models.OneToOneField(
+        'Movimentacao',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='planejamento_origem'
+    )
+
+    class Meta:
+        verbose_name = "Planejamento"
+        verbose_name_plural = "Planejamentos"
+        ordering = ['data_agendada'] # Ordena os planejamentos pela data agendada
+
+    def __str__(self):
+        return f"Agendamento: {self.get_tipo_display()} de {self.valor} em {self.data_agendada} ({self.get_frequencia_display()})"
+
+    # Podemos adicionar um método aqui para "converter" um planejamento em uma movimentação
+    # Este método seria chamado por uma view ou por uma tarefa agendada (futuramente)
+    def realizar_movimentacao(self, conta_destino: 'Conta'):
+        # Verifica se o planejamento ainda não foi realizado e se a data já chegou
+        if self.status == 'AGENDADO' and self.data_agendada <= models.DateField.today():
+            movimentacao = Movimentacao.objects.create(
+                usuario=self.usuario,
+                tipo=self.tipo,
+                valor=self.valor,
+                data=models.DateField.today(), # A data da movimentação real pode ser a de hoje
+                categoria=self.categoria,
+                descricao=f"Movimentação gerada do planejamento: {self.descricao or self.get_tipo_display()}",
+                conta=conta_destino
+            )
+            self.movimentacao_gerada = movimentacao
+            self.status = 'REALIZADO'
+            self.save()
+            return movimentacao
+        return None
