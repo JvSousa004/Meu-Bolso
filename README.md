@@ -70,11 +70,11 @@ Quer contribuir com o projeto "Meu Bolso"? Ficaremos felizes em receber sua ajud
 
 Este projeto está sendo desenvolvido por:
 
-* João Vítor Costa de Sousa (uc23102120)
-* Gabryel Abrantes          (uc23100864)
-* Esly Victor de Siqueira   (UC27101872)
-* Helder Moreira dos Santos (uc23101992)
-* Daniel Lima Soares        (uc23100050)
+* João Vítor Costa de Sousa - UC23102120
+* Gabryel Abrantes - UC23100864
+* Esly Victor de Siqueira - UC27101872
+* Helder Moreira dos Santos - UC23101992
+* Daniel Lima Soares - UC23100050
 
 ---
 
