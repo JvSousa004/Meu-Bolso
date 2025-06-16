@@ -70,10 +70,11 @@ Quer contribuir com o projeto "Meu Bolso"? Ficaremos felizes em receber sua ajud
 
 Este projeto está sendo desenvolvido por:
 
-* [Nome do Integrante 1]
-* [Nome do Integrante 2]
-* [Nome do Integrante 3]
-* [Nome do Integrante 4]
+* João Vítor Costa de Sousa (uc23102120)
+* Gabryel Abrantes          (uc23100864)
+* Esly Victor de Siqueira   (UC27101872)
+* Helder Moreira dos Santos (uc23101992)
+* Daniel Lima Soares        (uc23100050)
 
 ---
 
