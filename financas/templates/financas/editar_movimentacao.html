@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Editar Movimentação</title>
+</head>
+<body>
+    <h1>Editar Movimentação</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Salvar Alterações</button>
+    </form>
+
+    <p>
+        <a href="{% url 'financas:detalhe_movimentacao' pk=movimentacao.pk %}">Cancelar</a> |
+        <a href="{% url 'financas:lista_movimentacoes' %}">Voltar para a Lista</a>
+    </p>
+</body>
+</html>

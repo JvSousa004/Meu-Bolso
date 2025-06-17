@@ -1,0 +1,25 @@
+# Ignorar ambiente virtual
+venv/
+env/
+
+# Ignorar arquivos de cache e compilados do Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignorar banco de dados SQLite local
+db.sqlite3
+
+# Ignorar arquivos de log
+*.log
+
+# Ignorar configurações locais que não devem ir para o repositório (se você tiver)
+local_settings.py
+
+# Ignorar arquivos de mídia enviados pelo usuário (se você tiver um diretório 'media/')
+media/
+
+# Ignorar arquivos específicos de sistema operacional ou IDEs
+.DS_Store # macOS
+.vscode/ # Pasta de configurações do VS Code (opcional, se não quiser compartilhar)

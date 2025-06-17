@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Confirmar Exclusão</title>
+</head>
+<body>
+    <h1>Confirmar Exclusão</h1>
+
+    <p>Tem certeza de que deseja excluir a seguinte movimentação?</p>
+    <p><strong>Tipo:</strong> {{ movimentacao.get_tipo_display }}</p>
+    <p><strong>Valor:</strong> R$ {{ movimentacao.valor|floatformat:2 }}</p>
+    <p><strong>Data:</strong> {{ movimentacao.data }}</p>
+    <p><strong>Descrição:</strong> {{ movimentacao.descricao|default:"Sem descrição" }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Sim, Excluir</button>
+    </form>
+
+    <p><a href="{% url 'financas:detalhe_movimentacao' pk=movimentacao.pk %}">Não, Voltar</a></p>
+</body>
+</html>

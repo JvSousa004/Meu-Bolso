@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Meu Bolso - Minhas Movimentações</title>
+</head>
+<body>
+    <h1>Minhas Movimentações</h1>
+
+    {% if movimentacoes %}
+        <ul>
+            {% for mov in movimentacoes %}
+                <li>
+                    {{ mov.data }} -
+                    <strong>{{ mov.get_tipo_display }}</strong>:
+                    R$ {{ mov.valor|floatformat:2 }} -
+                    {{ mov.categoria.nome }} -
+                    {{ mov.conta.nome }}
+                    {% if mov.descricao %}({{ mov.descricao }}){% endif %}
+                    | <a href="{% url 'financas:detalhe_movimentacao' pk=mov.pk %}">Detalhes</a>
+                    | <a href="{% url 'financas:editar_movimentacao' pk=mov.pk %}">Editar</a>
+                    | <a href="{% url 'financas:excluir_movimentacao' pk=mov.pk %}">Excluir</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Nenhuma movimentação registrada.</p>
+    {% endif %}
+
+    <p><a href="{% url 'financas:nova_movimentacao' %}">Adicionar nova movimentação</a></p>
+    <p><a href="{% url 'financas:dashboard' %}">Voltar para o Dashboard</a></p>
+</body>
+</html>

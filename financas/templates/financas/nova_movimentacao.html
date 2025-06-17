@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Meu Bolso - Nova Movimentação</title>
+</head>
+<body>
+    <h1>Adicionar Nova Movimentação</h1>
+
+    <form method="post">
+        {% csrf_token %} {# Proteção CSRF obrigatória para formulários POST #}
+        {{ form.as_p }} {# Renderiza o formulário como parágrafos #}
+        <button type="submit">Salvar Movimentação</button>
+    </form>
+
+    <p><a href="{% url 'financas:dashboard' %}">Voltar para o Dashboard</a></p>
+</body>
+</html>

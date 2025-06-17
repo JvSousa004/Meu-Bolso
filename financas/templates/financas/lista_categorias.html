@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Meu Bolso - Categorias</title>
+</head>
+<body>
+    <h1>Minhas Categorias</h1>
+    {% if categorias %}
+        <ul>
+        {% for cat in categorias %}
+            <li>{{ cat.nome }}</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>Nenhuma categoria registrada ainda.</p>
+    {% endif %}
+    <p><a href="{% url 'financas:dashboard' %}">Voltar para o Dashboard</a></p>
+</body>
+</html>

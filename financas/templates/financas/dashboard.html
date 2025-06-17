@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Meu Bolso - Dashboard</title>
+</head>
+<body>
+    <h1>Bem-vindo(a), {{ nome_usuario }}!</h1>
+    <p>Seu saldo atual é: R$ {{ saldo_atual|floatformat:2 }}</p>
+
+    <h2>Últimas Movimentações:</h2>
+    {% if ultimas_movimentacoes %}
+        <ul>
+        {% for mov in ultimas_movimentacoes %}
+            <li>{{ mov.data }}: {{ mov.tipo }} - R$ {{ mov.valor|floatformat:2 }} ({{ mov.descricao }})</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>Nenhuma movimentação recente.</p>
+    {% endif %}
+
+    <p><a href="{% url 'financas:lista_movimentacoes' %}">Ver todas as movimentações</a></p>
+    <p><a href="{% url 'financas:nova_movimentacao' %}">Adicionar nova movimentação</a></p>
+    <p><a href="{% url 'financas:lista_categorias' %}">Gerenciar Categorias</a></p>
+    <hr> {# Linha divisória #}
+
+   {% if user.is_authenticated %}
+    <p>Você está logado como: {{ user.username }}</p>
+    <form action="{% url 'logout' %}" method="post" style="display: inline;">
+        {% csrf_token %}
+        <button type="submit" style="background: none; border: none; color: blue; text-decoration: underline; cursor: pointer; padding: 0;">Sair (Logout)</button>
+    </form>
+{% else %}
+    <p>Você não está logado.</p>
+    <p><a href="{% url 'login' %}">Fazer Login</a></p>
+    <p><a href="{% url 'financas:cadastro_usuario' %}">Criar Conta (Cadastro)</a></p>
+{% endif %}
+</body>
+</html>

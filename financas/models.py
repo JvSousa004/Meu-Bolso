@@ -1,20 +1,17 @@
 from django.db import models
-from django.conf import settings
+from django.conf import settings # Certifique-se que esta linha está no topo
 
 class Categoria(models.Model):
     nome = models.CharField(max_length=100, unique=True)
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='categorias')
 
-# O próprio usuário do app vai fazer o CRUD da "categoria financeira". Atende o RF4
+    class Meta:
+        verbose_name = 'Categoria'
+        verbose_name_plural = 'Categorias'
+        unique_together = ('nome', 'usuario',)
 
-class Meta: 
-    verbose_name = 'Categoria'
-    verbose_name_plural = 'Categorias'
-    unique_together = ('nome', 'usuario',) 
-
-    def __str__(self):
-        return self.nome  
-  
+    def __str__(self): 
+        return self.nome
 
 class Conta(models.Model):
     usuario = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='conta')
@@ -171,4 +168,54 @@ class Planejamento(models.Model):
             self.status = 'REALIZADO'
             self.save()
             return movimentacao
-        return None
+        return None 
+    
+class ListaDeCompras(models.Model):
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='listas_de_compras')
+    nome = models.CharField(max_length=200)
+    data_criacao = models.DateTimeField(auto_now_add=True)
+    ativa = models.BooleanField(default=True) # Para indicar se a lista está em uso ou arquivada
+
+    class Meta:
+        verbose_name = "Lista de Compras"
+        verbose_name_plural = "Listas de Compras"
+        ordering = ['-data_criacao']
+
+    def __str__(self):
+        return f"Lista: {self.nome} (Criada em {self.data_criacao.strftime('%d/%m/%Y')})"
+
+    # Método para duplicar a lista e seus itens
+    def duplicar(self):
+        nova_lista = ListaDeCompras.objects.create(
+            usuario=self.usuario,
+            nome=f"Cópia de {self.nome} ({models.DateField.today().strftime('%d/%m/%Y')})",
+            ativa=True
+        )
+        for item_original in self.itens_da_lista.all(): # 'itens_da_lista' é o related_name de ItemListaDeCompras
+            ItemListaDeCompras.objects.create(
+                lista=nova_lista,
+                nome=item_original.nome,
+                quantidade=item_original.quantidade,
+                unidade_medida=item_original.unidade_medida,
+                preco_estimado=item_original.preco_estimado,
+                comprado=False # Ao duplicar, os itens voltam a ser não comprados
+            )
+        return nova_lista
+
+class ItemListaDeCompras(models.Model):
+    lista = models.ForeignKey(ListaDeCompras, on_delete=models.CASCADE, related_name='itens_da_lista')
+    nome = models.CharField(max_length=200)
+    quantidade = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    unidade_medida = models.CharField(max_length=50, blank=True, null=True) # Ex: kg, unidade, litro
+    preco_estimado = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    comprado = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = "Item da Lista"
+        verbose_name_plural = "Itens da Lista"
+        # Opcional: ordenar itens dentro da lista (ex: por nome, ou ordem de adição)
+        ordering = ['nome']
+
+    def __str__(self):
+        status = " (Comprado)" if self.comprado else ""
+        return f"{self.nome} ({self.quantidade or ''} {self.unidade_medida or ''}){status}"
