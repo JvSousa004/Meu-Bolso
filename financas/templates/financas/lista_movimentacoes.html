@@ -1,32 +1,67 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Meu Bolso - Minhas Movimentações</title>
-</head>
-<body>
-    <h1>Minhas Movimentações</h1>
+{% extends 'financas/base.html' %}
+
+{% block title %}Minhas Movimentações - Meu Bolso{% endblock %}
+
+{% block content %}
+    <h1 class="mb-4">Minhas Movimentações</h1>
+
+    <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4">
+        <a href="{% url 'financas:nova_movimentacao' %}" class="btn btn-success me-md-2">
+            <i class="bi bi-plus-circle"></i> Adicionar Nova Movimentação
+        </a>
+        <a href="{% url 'financas:dashboard' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left-circle"></i> Voltar para o Dashboard
+        </a>
+    </div>
 
     {% if movimentacoes %}
-        <ul>
-            {% for mov in movimentacoes %}
-                <li>
-                    {{ mov.data }} -
-                    <strong>{{ mov.get_tipo_display }}</strong>:
-                    R$ {{ mov.valor|floatformat:2 }} -
-                    {{ mov.categoria.nome }} -
-                    {{ mov.conta.nome }}
-                    {% if mov.descricao %}({{ mov.descricao }}){% endif %}
-                    | <a href="{% url 'financas:detalhe_movimentacao' pk=mov.pk %}">Detalhes</a>
-                    | <a href="{% url 'financas:editar_movimentacao' pk=mov.pk %}">Editar</a>
-                    | <a href="{% url 'financas:excluir_movimentacao' pk=mov.pk %}">Excluir</a>
-                </li>
-            {% endfor %}
-        </ul>
+        <div class="table-responsive">
+            <table class="table table-hover table-striped shadow-sm">
+                <thead class="table-dark">
+                    <tr>
+                        <th scope="col">Data</th>
+                        <th scope="col">Tipo</th>
+                        <th scope="col">Valor</th>
+                        <th scope="col">Categoria</th>
+                        <th scope="col">Conta</th>
+                        <th scope="col">Descrição</th>
+                        <th scope="col">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mov in movimentacoes %}
+                        <tr>
+                            <td>{{ mov.data|date:"d/m/Y" }}</td>
+                            <td>
+                                <span class="badge {% if mov.tipo == 'RECEITA' %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ mov.get_tipo_display }}
+                                </span>
+                            </td>
+                            <td>R$ {{ mov.valor|floatformat:2 }}</td>
+                            <td>{{ mov.categoria.nome|default:"N/A" }}</td>
+                            <td>{{ mov.conta.nome }}</td>
+                            <td>{{ mov.descricao|default:"-" }}</td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group" aria-label="Ações da movimentação">
+                                    <a href="{% url 'financas:detalhe_movimentacao' pk=mov.pk %}" class="btn btn-info" title="Detalhes">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="{% url 'financas:editar_movimentacao' pk=mov.pk %}" class="btn btn-warning" title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="{% url 'financas:excluir_movimentacao' pk=mov.pk %}" class="btn btn-danger" title="Excluir">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     {% else %}
-        <p>Nenhuma movimentação registrada.</p>
+        <div class="alert alert-info text-center mt-4" role="alert">
+            Nenhuma movimentação registrada. <a href="{% url 'financas:nova_movimentacao' %}" class="alert-link">Adicione sua primeira transação!</a>
+        </div>
     {% endif %}
-
-    <p><a href="{% url 'financas:nova_movimentacao' %}">Adicionar nova movimentação</a></p>
-    <p><a href="{% url 'financas:dashboard' %}">Voltar para o Dashboard</a></p>
-</body>
-</html>
+{% endblock %}

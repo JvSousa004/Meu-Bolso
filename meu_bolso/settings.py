@@ -1,4 +1,3 @@
-
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,8 +24,8 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles', 
-    'financas' 
+    'django.contrib.staticfiles',
+    'financas'
 ]
 
 MIDDLEWARE = [
@@ -113,3 +112,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # URL para redirecionar após o login bem-sucedido
 LOGIN_REDIRECT_URL = '/' # Redireciona para a raiz do site, para o dashboard
+# URL para onde o usuário é redirecionado quando @login_required é usado e ele não está autenticado
+LOGIN_URL = '/accounts/login/' # O padrão das urls de autenticação do Django

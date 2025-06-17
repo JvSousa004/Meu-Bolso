@@ -1,38 +1,62 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Meu Bolso - Dashboard</title>
-</head>
-<body>
-    <h1>Bem-vindo(a), {{ nome_usuario }}!</h1>
-    <p>Seu saldo atual é: R$ {{ saldo_atual|floatformat:2 }}</p>
+{% extends 'financas/base.html' %}
 
-    <h2>Últimas Movimentações:</h2>
-    {% if ultimas_movimentacoes %}
-        <ul>
-        {% for mov in ultimas_movimentacoes %}
-            <li>{{ mov.data }}: {{ mov.tipo }} - R$ {{ mov.valor|floatformat:2 }} ({{ mov.descricao }})</li>
-        {% endfor %}
-        </ul>
-    {% else %}
-        <p>Nenhuma movimentação recente.</p>
-    {% endif %}
+{% block title %}Dashboard - Meu Bolso{% endblock %}
 
-    <p><a href="{% url 'financas:lista_movimentacoes' %}">Ver todas as movimentações</a></p>
-    <p><a href="{% url 'financas:nova_movimentacao' %}">Adicionar nova movimentação</a></p>
-    <p><a href="{% url 'financas:lista_categorias' %}">Gerenciar Categorias</a></p>
-    <hr> {# Linha divisória #}
+{% block content %}
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold text-dark mb-3">Seu Bolso, Seu Controle</h1>
+        <div class="card bg-success text-white p-4 mx-auto" style="max-width: 400px;">
+            <div class="card-body">
+                <h5 class="card-title mb-2">Saldo Total Atual</h5>
+                <p class="card-text display-4 fw-bold">R$ {{ saldo_total|floatformat:2 }}</p>
+            </div>
+        </div>
+    </div>
 
-   {% if user.is_authenticated %}
-    <p>Você está logado como: {{ user.username }}</p>
-    <form action="{% url 'logout' %}" method="post" style="display: inline;">
-        {% csrf_token %}
-        <button type="submit" style="background: none; border: none; color: blue; text-decoration: underline; cursor: pointer; padding: 0;">Sair (Logout)</button>
-    </form>
-{% else %}
-    <p>Você não está logado.</p>
-    <p><a href="{% url 'login' %}">Fazer Login</a></p>
-    <p><a href="{% url 'financas:cadastro_usuario' %}">Criar Conta (Cadastro)</a></p>
-{% endif %}
-</body>
-</html>
+    <div class="row mt-5">
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <h5 class="card-title text-primary">Movimentações</h5>
+                    <p class="card-text text-muted">Visualize, adicione, edite e exclua suas receitas e despesas.</p>
+                    <a href="{% url 'financas:lista_movimentacoes' %}" class="btn btn-primary mt-auto">Ver Movimentações</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <h5 class="card-title text-info">Categorias</h5>
+                    <p class="card-text text-muted">Organize suas transações com categorias personalizadas.</p>
+                    <a href="{% url 'financas:lista_categorias' %}" class="btn btn-info mt-auto">Gerenciar Categorias</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <h2 class="mb-3 text-secondary">Últimas Movimentações:</h2>
+        {% if ultimas_movimentacoes %}
+            <div class="list-group shadow-sm">
+            {% for mov in ultimas_movimentacoes %}
+                <a href="{% url 'financas:detalhe_movimentacao' pk=mov.pk %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    <div>
+                        <small class="text-muted">{{ mov.data|date:"d/m/Y H:i" }}</small><br>
+                        <strong>{{ mov.get_tipo_display }}</strong>:
+                        <span class="fw-bold {% if mov.tipo == 'RECEITA' %}text-success{% else %}text-danger{% endif %}">
+                            R$ {{ mov.valor|floatformat:2 }}
+                        </span>
+                        <br>
+                        <small class="text-dark">{{ mov.descricao|default:"Sem descrição" }}</small>
+                    </div>
+                    <span class="badge bg-secondary rounded-pill">{{ mov.categoria.nome }}</span>
+                </a>
+            {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info text-center mt-4" role="alert">
+                Nenhuma movimentação recente. <a href="{% url 'financas:nova_movimentacao' %}" class="alert-link">Adicione sua primeira transação!</a>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

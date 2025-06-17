@@ -1,22 +1,25 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Confirmar Exclusão</title>
-</head>
-<body>
-    <h1>Confirmar Exclusão</h1>
+{% extends 'financas/base.html' %}
 
-    <p>Tem certeza de que deseja excluir a seguinte movimentação?</p>
-    <p><strong>Tipo:</strong> {{ movimentacao.get_tipo_display }}</p>
-    <p><strong>Valor:</strong> R$ {{ movimentacao.valor|floatformat:2 }}</p>
-    <p><strong>Data:</strong> {{ movimentacao.data }}</p>
-    <p><strong>Descrição:</strong> {{ movimentacao.descricao|default:"Sem descrição" }}</p>
+{% block title %}Confirmar Exclusão de Categoria - Meu Bolso{% endblock %}
 
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit">Sim, Excluir</button>
-    </form>
+{% block content %}
+    <div class="card border-danger shadow-sm">
+        <div class="card-header bg-danger text-white">
+            <h1 class="card-title mb-0">Confirmar Exclusão de Categoria</h1>
+        </div>
+        <div class="card-body">
+            <p class="lead">Tem certeza de que deseja excluir a categoria "<strong>{{ categoria.nome }}</strong>"?</p>
+            <p class="text-danger"><strong>Atenção:</strong> Se houver movimentações associadas a esta categoria, elas ficarão sem categoria!</p>
 
-    <p><a href="{% url 'financas:detalhe_movimentacao' pk=movimentacao.pk %}">Não, Voltar</a></p>
-</body>
-</html>
+            <form method="post" class="mt-4">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger me-2">
+                    <i class="bi bi-trash-fill me-2"></i>Sim, Excluir
+                </button>
+                <a href="{% url 'financas:lista_categorias' %}" class="btn btn-secondary">
+                    <i class="bi bi-x-circle-fill me-2"></i>Não, Voltar
+                </a>
+            </form>
+        </div>
+    </div>
+{% endblock %}

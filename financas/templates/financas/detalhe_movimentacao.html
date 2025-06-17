@@ -1,22 +1,30 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Detalhes da Movimentação</title>
-</head>
-<body>
-    <h1>Detalhes da Movimentação</h1>
+{% extends 'financas/base.html' %}
 
-    <p><strong>Tipo:</strong> {{ movimentacao.get_tipo_display }}</p>
-    <p><strong>Valor:</strong> R$ {{ movimentacao.valor|floatformat:2 }}</p>
-    <p><strong>Data:</strong> {{ movimentacao.data }}</p>
-    <p><strong>Categoria:</strong> {{ movimentacao.categoria.nome|default:"N/A" }}</p>
-    <p><strong>Conta:</strong> {{ movimentacao.conta.nome }}</p>
-    <p><strong>Descrição:</strong> {{ movimentacao.descricao|default:"Sem descrição" }}</p>
+{% block title %}Detalhes da Movimentação - Meu Bolso{% endblock %}
 
-    <p>
-        <a href="{% url 'financas:editar_movimentacao' pk=movimentacao.pk %}">Editar</a> |
-        <a href="{% url 'financas:excluir_movimentacao' pk=movimentacao.pk %}">Excluir</a> |
-        <a href="{% url 'financas:lista_movimentacoes' %}">Voltar para a Lista</a>
-    </p>
-</body>
-</html>
+{% block content %}
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h1 class="card-title mb-0">Detalhes da Movimentação</h1>
+        </div>
+        <div class="card-body">
+            <p><strong>Tipo:</strong> <span class="badge {% if movimentacao.tipo == 'RECEITA' %}bg-success{% else %}bg-danger{% endif %}">{{ movimentacao.get_tipo_display }}</span></p>
+            <p><strong>Valor:</strong> R$ {{ movimentacao.valor|floatformat:2 }}</p>
+            <p><strong>Data:</strong> {{ movimentacao.data|date:"d/m/Y H:i" }}</p>
+            <p><strong>Categoria:</strong> {{ movimentacao.categoria.nome|default:"N/A" }}</p>
+            <p><strong>Conta:</strong> {{ movimentacao.conta.nome }}</p>
+            <p><strong>Descrição:</strong> {{ movimentacao.descricao|default:"Sem descrição" }}</p>
+        </div>
+        <div class="card-footer d-flex justify-content-between">
+            <a href="{% url 'financas:editar_movimentacao' pk=movimentacao.pk %}" class="btn btn-warning">
+                <i class="bi bi-pencil-fill me-2"></i>Editar
+            </a>
+            <a href="{% url 'financas:excluir_movimentacao' pk=movimentacao.pk %}" class="btn btn-danger">
+                <i class="bi bi-trash-fill me-2"></i>Excluir
+            </a>
+            <a href="{% url 'financas:lista_movimentacoes' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left-circle-fill me-2"></i>Voltar para a Lista
+            </a>
+        </div>
+    </div>
+{% endblock %}

@@ -1,19 +1,38 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Meu Bolso - Categorias</title>
-</head>
-<body>
-    <h1>Minhas Categorias</h1>
+{% extends 'financas/base.html' %}
+
+{% block title %}Minhas Categorias - Meu Bolso{% endblock %}
+
+{% block content %}
+    <h1 class="mb-4">Minhas Categorias</h1>
+
+    <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4">
+        <a href="{% url 'financas:criar_categoria' %}" class="btn btn-success me-md-2">
+            <i class="bi bi-plus-circle"></i> Criar Nova Categoria
+        </a>
+        <a href="{% url 'financas:dashboard' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left-circle"></i> Voltar para o Dashboard
+        </a>
+    </div>
+
     {% if categorias %}
-        <ul>
-        {% for cat in categorias %}
-            <li>{{ cat.nome }}</li>
-        {% endfor %}
-        </ul>
+        <div class="list-group shadow-sm">
+            {% for categoria in categorias %}
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <h5>{{ categoria.nome }}</h5>
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Ações da categoria">
+                        <a href="{% url 'financas:editar_categoria' pk=categoria.pk %}" class="btn btn-warning" title="Editar">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <a href="{% url 'financas:excluir_categoria' pk=categoria.pk %}" class="btn btn-danger" title="Excluir">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
     {% else %}
-        <p>Nenhuma categoria registrada ainda.</p>
+        <div class="alert alert-info text-center mt-4" role="alert">
+            Nenhuma categoria registrada. <a href="{% url 'financas:criar_categoria' %}" class="alert-link">Crie uma agora!</a>
+        </div>
     {% endif %}
-    <p><a href="{% url 'financas:dashboard' %}">Voltar para o Dashboard</a></p>
-</body>
-</html>
+{% endblock %}

@@ -1,15 +1,54 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Meu Bolso - Cadastro</title>
-</head>
-<body>
-    <h1>Crie sua conta</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Cadastrar</button>
-    </form>
-    <p>Já tem uma conta? <a href="{% url 'login' %}">Faça login aqui</a>.</p>
-</body>
-</html>
+{% extends 'financas/base.html' %}
+
+{% block title %}Cadastro - Meu Bolso{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-lg mt-5">
+                <div class="card-header bg-dark text-white text-center">
+                    <h1 class="card-title mb-0">Criar Conta</h1>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger" role="alert">
+                                <ul>
+                                    {% for error in form.non_field_errors %}
+                                        <li>{{ error|safe }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+
+                        {% for field in form %}
+                            <div class="mb-3">
+                                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.help_text %}
+                                    <div class="form-text">{{ field.help_text }}</div>
+                                {% endif %}
+                                {% if field.errors %}
+                                    <div class="text-danger">
+                                        {% for error in field.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">Registrar</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center">
+                    <p class="mb-0">Já tem uma conta? <a href="{% url 'login' %}">Faça Login</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
