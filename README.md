@@ -81,4 +81,10 @@ Este projeto está sendo desenvolvido por:
 
 ---
 
-**Nota:** Este projeto está sendo realizado para entrega do projeto final da matéria **Testes de Software**.
+**Nota:** Este projeto está sendo realizado para entrega do projeto final da matéria **Testes de Software**. 
+
+--- 
+
+## Licença
+
+Este projeto está licenciado sob a Licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
