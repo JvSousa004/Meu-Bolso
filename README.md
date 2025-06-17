@@ -79,7 +79,7 @@ Este projeto está sendo desenvolvido por:
 * Helder Moreira dos Santos - UC23101992
 * Daniel Lima Soares - UC23100050
 
----
+
 
 **Nota:** Este projeto está sendo realizado para entrega do projeto final da matéria **Testes de Software**. 
 
