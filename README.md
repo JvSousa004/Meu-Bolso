@@ -31,7 +31,10 @@ O "Meu Bolso" está em constante evolução, mas já conta (ou contará em breve
 
 ### Frontend
 
-* **Em definição:** Estamos explorando as melhores opções para o frontend, buscando frameworks ou bibliotecas JavaScript que garantam uma interface amigável, intuitiva e responsiva (React, Vue.js, HTMX ou até mesmo Django Templates puros serão avaliados).
+* **Tecnologia:** A interface do usuário é construída utilizando **Django Templates** para renderização server-side (SSR), garantindo uma integração nativa e eficiente com o backend.
+* **Estilização e Responsividade:** Adotamos o framework **Bootstrap 5** para a estilização, proporcionando um design moderno, intuitivo e totalmente responsivo, adaptável a diferentes tamanhos de tela.
+* **Elementos Visuais:** Para enriquecer a experiência do usuário com ícones e elementos visuais consistentes, utilizamos a biblioteca **Bootstrap Icons**.
+* **Experiência do Usuário (UX):** Implementação de feedback visual através do Django Messages Framework e destaque de links ativos na navegação para melhor usabilidade.
 
 ## Como Colaborar 🤝
 
