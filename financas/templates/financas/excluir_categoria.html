@@ -1,0 +1,27 @@
+{% extends 'financas/base.html' %}
+
+{% block title %}Excluir Categoria - Meu Bolso{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm mt-4">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="mb-0">Confirmar Exclusão de Categoria</h3>
+                </div>
+                <div class="card-body">
+                    <p class="lead">Tem certeza de que deseja excluir a categoria: <strong>"{{ categoria.nome }}"</strong>?</p>
+                    <p class="text-danger">Esta ação não pode ser desfeita.</p>
+
+                    <form method="post" action="{% url 'financas:excluir_categoria' pk=categoria.pk %}">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-danger btn-lg">Sim, Excluir</button>
+                            <a href="{% url 'financas:lista_categorias' %}" class="btn btn-outline-secondary btn-lg">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

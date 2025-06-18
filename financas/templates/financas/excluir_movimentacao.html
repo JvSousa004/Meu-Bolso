@@ -1,15 +1,15 @@
 {% extends 'financas/base.html' %}
 
-{% block title %}Confirmar Exclusão de Categoria - Meu Bolso{% endblock %}
+{% block title %}Confirmar Exclusão de Movimentação - Meu Bolso{% endblock %}
 
 {% block content %}
     <div class="card border-danger shadow-sm">
         <div class="card-header bg-danger text-white">
-            <h1 class="card-title mb-0">Confirmar Exclusão de Categoria</h1>
+            <h1 class="card-title mb-0">Confirmar Exclusão de Movimentação</h1>
         </div>
         <div class="card-body">
-            <p class="lead">Tem certeza de que deseja excluir a categoria "<strong>{{ categoria.nome }}</strong>"?</p>
-            <p class="text-danger"><strong>Atenção:</strong> Se houver movimentações associadas a esta categoria, elas ficarão sem categoria!</p>
+            <p class="lead">Tem certeza de que deseja excluir a movimentação registrada? "<strong>{{ categoria.nome }}</strong>"?</p>
+            <p class="text-danger"><strong>Atenção:</strong> Se essa movimentação estiver associada a uma categoria, elas irá ficar sem registro!</p>
 
             <form method="post" class="mt-4">
                 {% csrf_token %}
