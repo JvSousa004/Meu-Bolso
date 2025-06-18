@@ -111,6 +111,6 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # URL para redirecionar após o login bem-sucedido
-LOGIN_REDIRECT_URL = '/' # Redireciona para a raiz do site, para o dashboard
-# URL para onde o usuário é redirecionado quando @login_required é usado e ele não está autenticado
-LOGIN_URL = '/accounts/login/' # O padrão das urls de autenticação do Django
+LOGIN_REDIRECT_URL = '/' 
+LOGIN_URL = '/accounts/login/' 
+LOGOUT_REDIRECT_URL = '/accounts/login'
