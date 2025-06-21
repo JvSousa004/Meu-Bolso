@@ -12,15 +12,13 @@ O "Meu Bolso" serve como seu assistente financeiro digital. Ele foi projetado pa
 
 ## Funcionalidades Principais 🚀
 
-O "Meu Bolso" está em constante evolução, mas já conta (ou contará em breve) com as seguintes funcionalidades essenciais:
+O "Meu Bolso" está em constante evolução, mas já conta com as seguintes funcionalidades essenciais:
 
 * **Registro de Movimentações:** Cadastre suas receitas e despesas de forma rápida e detalhada, informando valor, data, tipo e categoria.
 * **Cálculo Automático de Saldo:** Mantenha seu saldo sempre atualizado após cada movimentação.
 * **Classificação por Categorias:** Organize suas transações com categorias personalizadas e utilize-as para filtrar e analisar seus dados.
-* **Planejamento Financeiro:** Agende receitas e despesas futuras para um controle proativo de suas finanças, com alertas opcionais (a serem implementados).
 * **Histórico Completo:** Visualize todo o seu histórico financeiro, com opções de filtragem por período.
-* **Geração de Relatórios (Em Breve):** Tenha acesso a relatórios detalhados com totais de entradas, saídas e seu saldo, filtrados por período e categoria, incluindo visualizações gráficas.
-* **Duplicação de Listas de Compras (Em Breve):** Facilite o planejamento de gastos recorrentes duplicando listas de compras.
+* **API RESTful Completa:** Agora com uma API robusta para gerenciamento de movimentações, categorias e contas, permitindo integração com outras aplicações e futuros front-ends (mobile, SPA, etc.).
 
 ## Tecnologias Utilizadas 🛠️
 
@@ -28,6 +26,7 @@ O "Meu Bolso" está em constante evolução, mas já conta (ou contará em breve
 
 * **Python:** A linguagem de programação principal, escolhida por sua simplicidade, legibilidade e vasta comunidade.
 * **Django:** Um poderoso framework web para Python que acelera o desenvolvimento de aplicações robustas e seguras, seguindo o princípio "Don't Repeat Yourself" (DRY).
+* **Django REST Framework (DRF):** Extensão poderosa do Django para a construção de APIs RESTful, fornecendo serializers, viewsets e roteamento automático para agilizar o desenvolvimento da API.
 
 ### Frontend
 
@@ -53,6 +52,8 @@ Quer contribuir com o projeto "Meu Bolso"? Ficaremos felizes em receber sua ajud
     # No Linux/macOS ou Git Bash: source venv/bin/activate
     pip install -r requirements.txt
     ```
+    **Nota:** Certifique-se de gerar seu `requirements.txt` atualizado para incluir o `djangorestframework`!
+
 4.  **Crie uma nova Branch** para suas alterações:
     ```bash
     git checkout -b feature/sua-feature-aqui
@@ -79,11 +80,9 @@ Este projeto está sendo desenvolvido por:
 * Helder Moreira dos Santos - UC23101992
 * Daniel Lima Soares - UC23100050
 
+**Nota:** Este projeto está sendo realizado para entrega do projeto final da matéria **Testes de Software**.
 
-
-**Nota:** Este projeto está sendo realizado para entrega do projeto final da matéria **Testes de Software**. 
-
---- 
+---
 
 ## Licença
 

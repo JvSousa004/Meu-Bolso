@@ -1,4 +1,3 @@
-
 from rest_framework import serializers
 from .models import Movimentacao, Categoria, Conta
 from django.contrib.auth.models import User
@@ -9,6 +8,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'username', 'email', 'first_name', 'last_name']
         read_only_fields = ['username', 'email', 'first_name', 'last_name'] 
+
 class CategoriaSerializer(serializers.ModelSerializer):
     
     usuario = UserSerializer(read_only=True) 
@@ -25,11 +25,9 @@ class CategoriaSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
-       
         return Categoria.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
-       
         return super().update(instance, validated_data)
 
 # Serializer para Conta
@@ -55,12 +53,11 @@ class ContaSerializer(serializers.ModelSerializer):
 
 # Serializer para Movimentacao
 class MovimentacaoSerializer(serializers.ModelSerializer):
-   
+    
     usuario = UserSerializer(read_only=True)
     categoria = CategoriaSerializer(read_only=True) 
-    conta = ContaSerializer(read_only=True)         
-
- 
+    conta = ContaSerializer(read_only=True) 
+    
     categoria_id = serializers.PrimaryKeyRelatedField(
         queryset=Categoria.objects.all(), source='categoria', write_only=True, required=False
     )
@@ -72,11 +69,12 @@ class MovimentacaoSerializer(serializers.ModelSerializer):
         model = Movimentacao
         fields = [
             'id', 'tipo', 'valor', 'data', 'descricao',
-            'usuario', 'categoria', 'conta', 
-            'categoria_id', 'conta_id',      
-            'data_criacao', 'data_atualizacao'
+            'usuario', 'categoria', 'conta', # Para leitura
+            'categoria_id', 'conta_id',      # Para escrita/criação/atualização
+            # Removidas 'data_criacao' e 'data_atualizacao' daqui
         ]
-        read_only_fields = ['id', 'usuario', 'data_criacao', 'data_atualizacao'] 
+        # Removidas 'data_criacao' e 'data_atualizacao' daqui também
+        read_only_fields = ['id', 'usuario'] 
 
     def create(self, validated_data):
         return Movimentacao.objects.create(**validated_data)

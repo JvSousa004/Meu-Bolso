@@ -7,5 +7,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('financas/', include('financas.urls')),
     path('', include('financas.urls')),
-    path('accounts/', include('django.contrib.auth.urls')),
+    path('accounts/', include('django.contrib.auth.urls')), 
+     path('api/', include('meu_bolso.api_urls')),
 ]
