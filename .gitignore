@@ -1,25 +1,24 @@
-# Ignorar ambiente virtual
-venv/
-env/
-
-# Ignorar arquivos de cache e compilados do Python
+# Python
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+.Python/
+env/
+venv/
+*.env
+.idea/  # Para usuários do PyCharm/IntelliJ
+*.sqlite3 # Para ignorar o arquivo de banco de dados SQLite (se você estiver usando um diferente em produção)
+/db.sqlite3
 
-# Ignorar banco de dados SQLite local
-db.sqlite3
-
-# Ignorar arquivos de log
+# Django
 *.log
-
-# Ignorar configurações locais que não devem ir para o repositório (se você tiver)
 local_settings.py
-
-# Ignorar arquivos de mídia enviados pelo usuário (se você tiver um diretório 'media/')
 media/
+static_root/
 
-# Ignorar arquivos específicos de sistema operacional ou IDEs
-.DS_Store # macOS
-.vscode/ # Pasta de configurações do VS Code (opcional, se não quiser compartilhar)
+# macOS
+.DS_Store
+
+# Outros
+*.sublime-*
