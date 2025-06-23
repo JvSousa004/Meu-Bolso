@@ -1,7 +1,7 @@
-# 🚀 Relatório de Testes E2E com Cypress
+# 🚀 Relatório de Testes E2E com Cypress — *Meu Bolso*
 
 ## 📋 Descrição
-Este documento apresenta os testes End-to-End (E2E) realizados no sistema **[NOME DO SISTEMA]**, desenvolvido com Django e testado utilizando a ferramenta **Cypress**. O objetivo dos testes é garantir que os principais fluxos do sistema funcionam corretamente, assegurando uma boa experiência ao usuário e a integridade das funcionalidades.
+Este documento apresenta os testes End-to-End (E2E) realizados no sistema **Meu Bolso**, desenvolvido com Django e testado utilizando a ferramenta **Cypress**. O objetivo dos testes é garantir que os principais fluxos do sistema estejam funcionando corretamente, assegurando uma boa experiência ao usuário e a integridade das funcionalidades.
 
 ---
 
@@ -10,42 +10,36 @@ Este documento apresenta os testes End-to-End (E2E) realizados no sistema **[NOM
 - 🖥️ **Backend:** Django
 - 🌐 **Frontend:** HTML + CSS + JS
 - 🧪 **Ferramenta de Teste:** Cypress
-- 🚀 **Ambiente de Execução:** `http://localhost:8000` (ou outro)
-- 🌍 **Navegador:** Chrome / Edge / Electron
+- 🚀 **Ambiente de Execução:** `http://127.0.0.1:8000`
+- 🌍 **Navegador:** Edge
 
 ---
 
 ## 📑 Cenários de Teste
 
-| ✅ **ID** | 📝 **Cenário**                  | 🔍 **Descrição**                                              | 🎯 **Resultado Esperado**                           |
-|------------|---------------------------------|---------------------------------------------------------------|------------------------------------------------------|
-| T01        | Cadastro Válido                | Preencher todos os campos corretamente e realizar cadastro    | ✔️ Usuário cadastrado com sucesso                    |
-| T02        | Cadastro com Senha Inválida    | Senha fora dos padrões permitidos                             | ❌ Mensagem de erro: "Senha inválida"                |
-| T03        | Cadastro com Nome Inválido     | Nome menor que 3 caracteres ou com caracteres inválidos       | ❌ Mensagem de erro: "Nome inválido"                 |
-| T04        | Login Válido                   | Login com e-mail e senha corretos                             | ✔️ Acesso permitido e mensagem de boas-vindas        |
-| T05        | Login Inválido                 | Login com senha incorreta                                     | ❌ Mensagem de erro: "Credenciais inválidas"         |
-| T06        | Criar Categoria                | Adicionar uma nova categoria                                  | ✔️ Categoria criada com sucesso                      |
-| T07        | Editar Categoria               | Alterar nome de uma categoria existente                       | ✔️ Categoria atualizada com sucesso                  |
-| T08        | Excluir Categoria              | Remover uma categoria                                         | ✔️ Categoria excluída com sucesso                    |
-| T09        | Criar Movimentação             | Inserir uma nova movimentação financeira                      | ✔️ Movimentação criada com sucesso                   |
-| T10        | Visualizar Movimentação        | Verificar se a movimentação aparece na listagem               | ✔️ Movimentação visível na listagem                  |
-| T11        | Editar Movimentação            | Alterar dados de uma movimentação existente                   | ✔️ Movimentação atualizada com sucesso               |
-| T12        | Excluir Movimentação           | Remover uma movimentação                                      | ✔️ Movimentação excluída com sucesso                 |
+| ✅ **ID** | 📝 **Cenário**                              | 🔍 **Descrição**                                                           | 🎯 **Resultado Esperado**                                                    |
+|------------|---------------------------------------------|----------------------------------------------------------------------------|-------------------------------------------------------------------------------|
+| T01        | Cadastro Válido                             | Cadastro com username e senha válidos                                      | ✔️ Mensagem: *"Sua conta foi criada com sucesso! Bem-vindo(a)!"*             |
+| T02        | Cadastro com Nome Inválido                  | Cadastro com username contendo caracteres inválidos                        | ❌ Mensagem: *"Enter a valid username"*                                       |
+| T03        | Cadastro com Senha Inválida                 | Cadastro com senha composta apenas por números                             | ❌ Mensagem: *"This password is entirely numeric"*                            |
+| T04        | Login Válido                                | Login com username e senha corretos                                        | ✔️ Login realizado com sucesso, redirecionamento para dashboard               |
+| T05        | Login Inválido                              | Login com username incorreto                                               | ❌ Mensagem: *"Please enter a correct username and password"*                 |
+| T06        | Criar Categoria                             | Criação de uma nova categoria única                                        | ✔️ Mensagem: *"Categoria criada com sucesso!"*                               |
+| T07        | Criar Categoria Já Existente                | Tentar criar uma categoria já existente                                    | ❌ Mensagem: *"Categoria with this Nome already exists."*                     |
+| T08        | Editar Categoria                            | Alterar o nome de uma categoria existente                                  | ✔️ Mensagem: *"Categoria atualizada com sucesso!"*                           |
+| T09        | Excluir Categoria                           | Excluir uma categoria existente                                            | ✔️ Mensagem: *"Categoria excluída com sucesso!"*                             |
+| T10        | Criar Movimentação (Receita)                | Criar uma movimentação financeira do tipo receita                          | ✔️ Mensagem: *"Movimentação adicionada com sucesso!"*                        |
+| T11        | Criar Movimentação (Despesa)                | Criar uma movimentação financeira do tipo despesa                          | ✔️ Mensagem: *"Movimentação adicionada com sucesso!"*                        |
+| T12        | Visualizar Movimentação                     | Acessar os detalhes de uma movimentação registrada                         | ✔️ Página com título: *"Detalhes da Movimentação"*                           |
+| T13        | Editar Movimentação (Valor)                 | Alterar o valor de uma movimentação existente                              | ✔️ Mensagem: *"Movimentação atualizada com sucesso!"*                        |
+| T14        | Apagar Movimentação                         | Excluir uma movimentação existente                                         | ✔️ Mensagem: *"Movimentação excluída com sucesso!"*                          |
 
 ---
 
 ## 📸 Evidências dos Testes
 
-- ✅ **Testes realizados em modo interativo (`cypress open`)**
-- 🎥 Caso configurado, Cypress gera vídeos dos testes (`cypress run --record`)
-- 🖼️ **Prints das execuções:** (Adicionar imagens na pasta `/evidencias` ou `/docs` do repositório)
-
-Exemplos de prints recomendados:
-- Tela de cadastro bem-sucedido
-- Tela com mensagem de erro (senha inválida ou login inválido)
-- Tela de movimentação financeira criada
-- Tela de categoria editada ou excluída
-- Resultado da execução no Cypress (pass/fail dos testes)
+- ✅ **Testes executados em modo interativo (`cypress open`)**
+- 🎥 Cypress permite também a gravação dos testes (`cypress run --record`)
 
 ---
 
@@ -54,4 +48,4 @@ Exemplos de prints recomendados:
 Os arquivos dos testes Cypress estão disponíveis na pasta:
 
 ```plaintext
-/cypress/e2e/
+/docs/Teste Cypress/cypress/e2e/TesteProjeto.cy.js

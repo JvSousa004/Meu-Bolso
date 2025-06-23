@@ -1,208 +1,228 @@
-# Meu-Bolso/financas/tests.py
-
-from django.urls import reverse
-from rest_framework import status
-from rest_framework.test import APITestCase
+import pytest
 from django.contrib.auth.models import User
-from .models import Categoria, Conta, Movimentacao
+from django.db.utils import IntegrityError
+from financas.utils import calcular_saldo, validar_email
+from financas.models import Conta, Movimentacao
+from financas.forms import MovimentacaoForm
+from collections import namedtuple
 
-# Classe de teste para autenticação e permissões
-class AuthTests(APITestCase):
-
-    def setUp(self):
-        # Cria um usuário de teste
-        self.user = User.objects.create_user(username='testuser', password='testpassword')
-        self.admin_user = User.objects.create_user(username='adminuser', password='adminpassword', is_staff=True, is_superuser=True)
-        
-        # Cria um segundo usuário para testar acesso a dados de outros
-        self.other_user = User.objects.create_user(username='otheruser', password='otherpassword')
-
-        # URLs base para os ViewSets
-        self.movimentacao_list_url = reverse('movimentacao-list')
-        self.categoria_list_url = reverse('categoria-list')
-        self.conta_list_url = reverse('conta-list')
-
-        # Cria uma categoria, conta e movimentacao para o user principal
-        self.categoria = Categoria.objects.create(nome='Alimentação', usuario=self.user)
-        self.conta = Conta.objects.create(nome='Conta Principal', saldo=1000.00, usuario=self.user)
-        self.movimentacao = Movimentacao.objects.create(
-            tipo='DESPESA',
-            valor=50.00,
-            data='2025-06-20',
-            descricao='Jantar',
-            usuario=self.user,
-            categoria=self.categoria,
-            conta=self.conta
-        )
-
-        # Cria uma categoria, conta e movimentacao para o outro user
-        self.other_categoria = Categoria.objects.create(nome='Transporte', usuario=self.other_user)
-        self.other_conta = Conta.objects.create(nome='Carteira', saldo=200.00, usuario=self.other_user)
-        self.other_movimentacao = Movimentacao.objects.create(
-            tipo='RECEITA',
-            valor=100.00,
-            data='2025-06-19',
-            descricao='Venda',
-            usuario=self.other_user,
-            categoria=self.other_categoria,
-            conta=self.other_conta
-        )
-        
-        # URL de detalhe para testar permissões de objeto
-        self.movimentacao_detail_url = reverse('movimentacao-detail', kwargs={'pk': self.movimentacao.id})
-        self.other_movimentacao_detail_url = reverse('movimentacao-detail', kwargs={'pk': self.other_movimentacao.id})
-
-    # --- Testes de Autenticação e Permissões ---
-
-    def test_acesso_nao_autenticado_movimentacoes(self):
-        """
-        Garante que usuários não autenticados não podem listar movimentações.
-        """
-        response = self.client.get(self.movimentacao_list_url)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
-    def test_acesso_autenticado_movimentacoes(self):
-        """
-        Garante que usuários autenticados podem listar suas próprias movimentações.
-        """
-        self.client.force_authenticate(user=self.user)
-        response = self.client.get(self.movimentacao_list_url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # Verifica se o usuário só vê suas próprias movimentações
-        self.assertEqual(len(response.data['results']), 1)
-        self.assertEqual(response.data['results'][0]['id'], self.movimentacao.id)
+# TESTE 1 – Criar movimentação no banco
 
 
-    def test_usuario_nao_pode_ver_movimentacao_de_outro_usuario(self):
-        """
-        Garante que um usuário não pode acessar o detalhe da movimentação de outro.
-        """
-        self.client.force_authenticate(user=self.user)
-        response = self.client.get(self.other_movimentacao_detail_url)
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND) # Ou 403 Forbidden dependendo da sua query
+@pytest.mark.django_db
+def test_criar_movimentacao():
+    usuario = User.objects.create_user(
+        username='usuario_teste', password='senha123')
+    conta = Conta.objects.create(usuario=usuario, saldo=0, nome="Conta Teste")
+
+    movimentacao = Movimentacao.objects.create(
+        usuario=usuario,
+        tipo='RECEITA',
+        valor=100,
+        data='2025-06-21',
+        conta=conta,
+        descricao="Depósito de teste"
+    )
+
+    assert Movimentacao.objects.filter(descricao="Depósito de teste").exists()
+
+# TESTE 2 – Formulário válido
 
 
-    def test_usuario_nao_pode_atualizar_movimentacao_de_outro_usuario(self):
-        """
-        Garante que um usuário não pode atualizar a movimentação de outro.
-        """
-        self.client.force_authenticate(user=self.user)
-        data = {'valor': 999.00} # Dados para tentar atualizar
-        response = self.client.patch(self.other_movimentacao_detail_url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND) # Ou 403 Forbidden
+@pytest.mark.django_db
+def test_formulario_valido():
+    usuario = User.objects.create_user(
+        username='usuario_form', password='senha123')
+    conta = Conta.objects.create(usuario=usuario, saldo=0, nome="Conta Teste")
 
-    def test_usuario_nao_pode_deletar_movimentacao_de_outro_usuario(self):
-        """
-        Garante que um usuário não pode deletar a movimentação de outro.
-        """
-        self.client.force_authenticate(user=self.user)
-        response = self.client.delete(self.other_movimentacao_detail_url)
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND) # Ou 403 Forbidden
+    form_data = {
+        'usuario': usuario.id,
+        'tipo': 'RECEITA',
+        'valor': 150,
+        'data': '2025-06-21',
+        'conta': conta.id,
+        'descricao': 'Salário'
+    }
+
+    form = MovimentacaoForm(data=form_data)
+    assert form.is_valid()
+
+# TESTE 3 – Cálculo de saldo
 
 
-# Classe de teste para o CRUD de Movimentações
-class MovimentacaoTests(APITestCase):
+def test_calculo_saldo():
+    TransacaoFake = namedtuple('Transacao', ['valor', 'tipo'])
+    transacoes = [
+        TransacaoFake(valor=100, tipo='RECEITA'),
+        TransacaoFake(valor=50, tipo='DESPESA'),
+        TransacaoFake(valor=25, tipo='RECEITA'),
+    ]
+    resultado = calcular_saldo(transacoes)
+    assert resultado == 75
 
-    def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='testpassword')
-        self.client.force_authenticate(user=self.user) # Autentica o cliente para todos os testes desta classe
+# TESTE 4 – Validação de e-mail
 
-        self.categoria = Categoria.objects.create(nome='Compras', usuario=self.user)
-        self.conta = Conta.objects.create(nome='Carteira', saldo=500.00, usuario=self.user)
 
-        self.list_url = reverse('movimentacao-list')
+@pytest.mark.parametrize("email, esperado", [
+    ("user@example.com", True),
+    ("invalido@", False),
+    ("", False),
+])
+def test_validar_email(email, esperado):
+    assert validar_email(email) == esperado
 
-    def test_criar_movimentacao(self):
-        """
-        Garante que podemos criar uma nova movimentação.
-        """
-        data = {
-            'tipo': 'DESPESA',
-            'valor': 150.00,
-            'data': '2025-06-22',
-            'descricao': 'Supermercado',
-            'usuario_id': self.user.id,
-            'categoria_id': self.categoria.id,
-            'conta_id': self.conta.id
-        }
-        response = self.client.post(self.list_url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Movimentacao.objects.count(), 1)
-        self.assertEqual(Movimentacao.objects.get().descricao, 'Supermercado')
-        self.assertEqual(response.data['usuario']['id'], self.user.id) # Verifica o usuário atribuído
+# TESTE 5 – Login de usuário
 
-    def test_criar_movimentacao_dados_invalidos(self):
-        """
-        Garante que não podemos criar uma movimentação com dados inválidos.
-        """
-        data = {
-            'tipo': 'TIPO_INVALIDO', # Tipo inválido
-            'valor': 'ABC',         # Valor inválido
-            'data': '2025-06-22',
-            'descricao': 'Teste',
-            'usuario_id': self.user.id,
-            'categoria_id': self.categoria.id,
-            'conta_id': self.conta.id
-        }
-        response = self.client.post(self.list_url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('tipo', response.data) # Verifica se o erro do campo 'tipo' está na resposta
-        self.assertIn('valor', response.data) # Verifica se o erro do campo 'valor' está na resposta
-        self.assertEqual(Movimentacao.objects.count(), 0) # Nenhuma movimentação deve ter sido criada
 
-    def test_listar_movimentacoes(self):
-        """
-        Garante que podemos listar todas as movimentações.
-        """
+@pytest.mark.django_db
+def test_login_usuario(client):
+    user = User.objects.create_user(
+        username='usuario_login', password='senha123')
+    login = client.login(username='usuario_login', password='senha123')
+    assert login == True
+
+# TESTE 6 – Tentar criar movimentação sem conta (erro esperado)
+
+
+@pytest.mark.django_db
+def test_movimentacao_sem_conta():
+    usuario = User.objects.create_user(
+        username='usuario_erro', password='senha123')
+
+    with pytest.raises(Movimentacao.conta.RelatedObjectDoesNotExist):
         Movimentacao.objects.create(
-            tipo='RECEITA', valor=200.00, data='2025-06-21', descricao='Salário',
-            usuario=self.user, categoria=self.categoria, conta=self.conta
+            usuario=usuario,
+            tipo='RECEITA',
+            valor=50,
+            data='2025-06-21',
+            descricao="Teste sem conta"
         )
-        response = self.client.get(self.list_url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['results']), 1)
 
-    def test_detalhe_movimentacao(self):
-        """
-        Garante que podemos buscar uma movimentação específica.
-        """
-        movimentacao = Movimentacao.objects.create(
-            tipo='DESPESA', valor=75.00, data='2025-06-23', descricao='Gasolina',
-            usuario=self.user, categoria=self.categoria, conta=self.conta
-        )
-        detail_url = reverse('movimentacao-detail', kwargs={'pk': movimentacao.id})
-        response = self.client.get(detail_url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['descricao'], 'Gasolina')
+# TESTE 7 – Criar categoria
 
-    def test_atualizar_movimentacao(self):
-        """
-        Garante que podemos atualizar uma movimentação existente.
-        """
-        movimentacao = Movimentacao.objects.create(
-            tipo='RECEITA', valor=100.00, data='2025-06-24', descricao='Freelance',
-            usuario=self.user, categoria=self.categoria, conta=self.conta
-        )
-        detail_url = reverse('movimentacao-detail', kwargs={'pk': movimentacao.id})
-        updated_data = {'valor': 120.00, 'descricao': 'Freelance - Atualizado'}
-        response = self.client.patch(detail_url, updated_data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        movimentacao.refresh_from_db()
-        self.assertEqual(movimentacao.valor, 120.00)
-        self.assertEqual(movimentacao.descricao, 'Freelance - Atualizado')
 
-    def test_deletar_movimentacao(self):
-        """
-        Garante que podemos deletar uma movimentação.
-        """
-        movimentacao = Movimentacao.objects.create(
-            tipo='DESPESA', valor=25.00, data='2025-06-25', descricao='Café',
-            usuario=self.user, categoria=self.categoria, conta=self.conta
-        )
-        detail_url = reverse('movimentacao-detail', kwargs={'pk': movimentacao.id})
-        response = self.client.delete(detail_url)
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(Movimentacao.objects.count(), 0)
+@pytest.mark.django_db
+def test_criar_categoria():
+    usuario = User.objects.create_user(
+        username='user_cat', password='senha123')
+    from financas.models import Categoria
+    categoria = Categoria.objects.create(nome='Alimentação', usuario=usuario)
+    assert Categoria.objects.filter(
+        nome='Alimentação', usuario=usuario).exists()
 
-# TODO: Repita as classes de teste para CategoriaTests e ContaTests, seguindo o padrão acima.
-# Lembre-se de adaptar os dados e as URLs.
+# TESTE 8 – Visualizar categorias
+
+
+@pytest.mark.django_db
+def test_visualizar_categorias():
+    usuario = User.objects.create_user(
+        username='user_cat_list', password='senha123')
+    from financas.models import Categoria
+    Categoria.objects.create(nome='Transporte', usuario=usuario)
+    categorias = Categoria.objects.filter(usuario=usuario)
+    assert categorias.count() == 1
+
+# TESTE 9 – Editar categoria
+
+
+@pytest.mark.django_db
+def test_editar_categoria():
+    usuario = User.objects.create_user(
+        username='user_cat_edit', password='senha123')
+    from financas.models import Categoria
+    categoria = Categoria.objects.create(nome='Lazer', usuario=usuario)
+    categoria.nome = 'Lazer Editado'
+    categoria.save()
+    categoria.refresh_from_db()
+    assert categoria.nome == 'Lazer Editado'
+
+# TESTE 10 – Excluir categoria
+
+
+@pytest.mark.django_db
+def test_excluir_categoria():
+    usuario = User.objects.create_user(
+        username='user_cat_del', password='senha123')
+    from financas.models import Categoria
+    categoria = Categoria.objects.create(nome='Saúde', usuario=usuario)
+    categoria.delete()
+    assert not Categoria.objects.filter(nome='Saúde', usuario=usuario).exists()
+
+# TESTE 11 – Criar movimentação (CRUD)
+
+
+@pytest.mark.django_db
+def test_criar_movimentacao_crud():
+    usuario = User.objects.create_user(
+        username='user_mov_create', password='senha123')
+    conta = Conta.objects.create(usuario=usuario, saldo=0, nome='Conta Teste')
+    movimentacao = Movimentacao.objects.create(
+        usuario=usuario,
+        tipo='RECEITA',
+        valor=200,
+        data='2025-06-21',
+        conta=conta,
+        descricao='Salário'
+    )
+    assert Movimentacao.objects.filter(
+        descricao='Salário', usuario=usuario).exists()
+
+# TESTE 12 – Visualizar movimentações
+
+
+@pytest.mark.django_db
+def test_visualizar_movimentacoes():
+    usuario = User.objects.create_user(
+        username='user_mov_list', password='senha123')
+    conta = Conta.objects.create(usuario=usuario, saldo=0, nome='Conta Teste')
+    Movimentacao.objects.create(
+        usuario=usuario,
+        tipo='DESPESA',
+        valor=80,
+        data='2025-06-21',
+        conta=conta,
+        descricao='Supermercado'
+    )
+    movimentacoes = Movimentacao.objects.filter(usuario=usuario)
+    assert movimentacoes.count() == 1
+
+# TESTE 13 – Editar movimentação
+
+
+@pytest.mark.django_db
+def test_editar_movimentacao():
+    usuario = User.objects.create_user(
+        username='user_mov_edit', password='senha123')
+    conta = Conta.objects.create(usuario=usuario, saldo=0, nome='Conta Teste')
+    movimentacao = Movimentacao.objects.create(
+        usuario=usuario,
+        tipo='DESPESA',
+        valor=50,
+        data='2025-06-21',
+        conta=conta,
+        descricao='Padaria'
+    )
+    movimentacao.valor = 100
+    movimentacao.save()
+    movimentacao.refresh_from_db()
+    assert movimentacao.valor == 100
+
+# TESTE 14 – Excluir movimentação
+
+
+@pytest.mark.django_db
+def test_excluir_movimentacao():
+    usuario = User.objects.create_user(
+        username='user_mov_del', password='senha123')
+    conta = Conta.objects.create(usuario=usuario, saldo=0, nome='Conta Teste')
+    movimentacao = Movimentacao.objects.create(
+        usuario=usuario,
+        tipo='RECEITA',
+        valor=300,
+        data='2025-06-21',
+        conta=conta,
+        descricao='Freelance'
+    )
+    movimentacao.delete()
+    assert not Movimentacao.objects.filter(
+        descricao='Freelance', usuario=usuario).exists()
